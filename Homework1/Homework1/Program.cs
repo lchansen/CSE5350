@@ -12,26 +12,54 @@ namespace Homework1
 
         static void Main(string[] args)
         {
-            //TestGenerateRandomArray();
-            //TestGenerateHistogram();
+            //Test();
 
+            var input = GetSizeInput(args.ElementAtOrDefault(0));
+            PrintHeaders();
+
+            if(input == -1)
+            {
+                for (int i = 1; i <= 20; i++)
+                {
+                    RunIteration(i * 1000000);
+                }
+            } 
+            else
+            {
+                RunIteration(input);
+            }
+        }
+
+        static void PrintHeaders()
+        {
+            Console.Write(" Arr. Len., Time (ms),");
+            for (int i = MIN_RANDOM; i < MAX_RANDOM+1; i++)
+            {
+                Console.Write("{0,10},", i);
+            }
+            Console.WriteLine();
+        }
+
+        static void RunIteration(int length)
+        {
             Stopwatch stopwatch = new Stopwatch();
-            var input = GetSizeInput(args[1]);
 
             stopwatch.Start();
-            var randoms = GenerateRandomArray(input);
+            var randoms = GenerateRandomArray(length);
             var hist = GenerateHistogram(randoms);
             stopwatch.Stop();
 
-            Console.WriteLine("Time Elapsed: {}", stopwatch.ElapsedMilliseconds);
+            Console.Write("{0,10},{1,10},", length, stopwatch.ElapsedMilliseconds);
+            for (int i = MIN_RANDOM; i < MAX_RANDOM+1; i++)
+            {
+                Console.Write("{0,10},", hist.GetValueOrDefault(i, 0));
+            }
 
-
-
+            Console.WriteLine();
         }
 
         static int GetSizeInput(string raw)
         {
-            Console.WriteLine("Array length:");
             if (int.TryParse(raw, out int parsed))
             {
                 return parsed;
@@ -48,12 +76,12 @@ namespace Homework1
             Random factory = new Random();
             for (int i = 0; i < randoms.Length;i++)
             {
-                randoms[i] = factory.Next(MIN_RANDOM, MAX_RANDOM);
+                randoms[i] = factory.Next(MIN_RANDOM, MAX_RANDOM+1);
             }
             return randoms;
         }
 
-        static int[] GenerateHistogram(int[] randoms)
+        static Dictionary<int, int> GenerateHistogram(int[] randoms)
         {
             var histogram = new Dictionary<int, int>();
             foreach(int number in randoms)
@@ -67,27 +95,14 @@ namespace Homework1
                     histogram.Add(number, 1);
                 }
             }
-
-            var kv = histogram.ToList();
-            kv.OrderBy((kvp) => kvp.Key);
-            return kv.Select((arg) => arg.Value).ToArray();
+            return histogram;
         }
 
-        static void TestGenerateRandomArray()
+        static void Test()
         {
-            Console.WriteLine("Test GenerateRandomArray(10):");
-            int[] randoms = GenerateRandomArray(10);
-            Console.WriteLine(string.Join(",", randoms.Select(x => x.ToString()).ToArray()));
-
-        }
-
-        static void TestGenerateHistogram()
-        {
-            Console.WriteLine("Test GenerateHistogram(random of size 100):");
+            Console.WriteLine("Running Test:");
             int[] randoms = GenerateRandomArray(100);
-            int[] hist = GenerateHistogram(randoms);
-            Console.WriteLine(string.Join(",", hist.Select(x => x.ToString()).ToArray()));
-            Console.WriteLine(hist.Sum());
+            var hist = GenerateHistogram(randoms);
         }
     }
 }
